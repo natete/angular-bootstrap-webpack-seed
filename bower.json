@@ -1,0 +1,19 @@
+{
+  "name": "demo-app",
+  "description": "A super awesome Angular app",
+  "main": "",
+  "authors": [
+    "natete"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {}
+}

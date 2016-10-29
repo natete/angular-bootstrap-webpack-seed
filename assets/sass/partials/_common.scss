@@ -1,0 +1,17 @@
+.container-fluid {
+  &::before {
+    background-image: linear-gradient(to right, black 0%,white 100%), url('../../img/emergya.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: repeat-y;
+    background-blend-mode: saturation;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    opacity: .2;
+  }
+
+}
