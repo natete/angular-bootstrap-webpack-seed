@@ -18,7 +18,7 @@ require('./node_modules/matrix-angular-gulp/gulpfile');
 /**
  * Creates a dev build using just webpack for it.
  */
-gulp.task('webpack:build:dev', function () {
+gulp.task('build:dev', ['webpack:clean'], function () {
   var webpackConfig = require('./webpack.stg.config');
   webpackConfig.watch = false;
 
@@ -31,7 +31,7 @@ gulp.task('webpack:build:dev', function () {
 /**
  * Creates a demo build using just webpack for it.
  */
-gulp.task('webpack:build:demo', function () {
+gulp.task('build:demo', ['webpack:clean'], function () {
   var webpackConfig = require('./webpack.demo.config');
   webpackConfig.watch = false;
 
@@ -44,7 +44,7 @@ gulp.task('webpack:build:demo', function () {
 /**
  * Creates a build using just webpack for it.
  */
-gulp.task('webpack:build:dist', function () {
+gulp.task('build:dist', ['webpack:clean'], function () {
   var webpackConfig = require('./webpack.demo.config');
   webpackConfig.watch = false;
 
@@ -57,7 +57,7 @@ gulp.task('webpack:build:dist', function () {
 /**
  * Serves dev build using just webpack and webpack-dev-server for it.
  */
-gulp.task('webpack:serve:dev', function (done) {
+gulp.task('serve:dev', function (done) {
   var webpackConfig = require('./webpack.stg.config');
   webpackConfig.watch = true;
   // Add hot deploy entries
@@ -87,7 +87,7 @@ gulp.task('webpack:serve:dev', function (done) {
 /**
  * Serves demo build using just webpack and webpack-dev-server for it.
  */
-gulp.task('webpack:serve:dist', function (done) {
+gulp.task('serve:dist', function (done) {
   var webpackConfig = require('./webpack.demo.config');
   webpackConfig.watch = true;
   // Add hot deploy entries
@@ -117,13 +117,59 @@ gulp.task('webpack:serve:dist', function (done) {
 /**
  * Serves production build using just webpack and a node server for it.
  */
-gulp.task('webpack:serve:stg', ['webpack:build:dev'], function () {
+gulp.task('serve:stg', ['webpack:build:dev'], function () {
   require('child_process').fork('./server');
 });
 
 /**
  * Serves production build using just webpack and a node server for it.
  */
-gulp.task('webpack:serve:demo', ['webpack:build:demo'], function () {
+gulp.task('serve:demo', ['webpack:build:demo'], function () {
   require('child_process').fork('./server');
+});
+
+/**
+ * Copy index.html file to dist.
+ */
+gulp.task('build:copy:index', function () {
+  return gulp
+    .src(config.paths.html.index)
+    .pipe(gulp.dest(config.paths.dist));
+});
+
+/**
+ * Copy build directory to dist.
+ */
+gulp.task('build:copy:bundle', function () {
+  return gulp
+    .src(config.paths.project)
+    .pipe(gulp.dest(config.paths.dist + '/build'));
+});
+
+/**
+ * Copy the entire app to dist.
+ */
+gulp.task('copy:dev', function (done) {
+  plugins
+    .sequence
+    .use(gulp)(
+      'build:clean',
+      ['build:copy:index', 'build:dist'],
+      'build:copy:bundle',
+      done
+    );
+});
+
+/**
+ * This tasks builds a deployable WAR file from the content in the dist directory.
+ */
+gulp.task('build:war', ['copy:dev'], function () {
+  return gulp
+    .src([config.paths.dist + '**', '!' + config.paths.dist + '**/*.map'])
+    .pipe(plugins.war({
+      welcome: 'index.html',
+      displayName: 'SAM Web'
+    }))
+    .pipe(plugins.zip('sam-web.war'))
+    .pipe(gulp.dest(config.paths.dist));
 });

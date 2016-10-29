@@ -20,5 +20,7 @@ module.exports = function() {
     ]
   };
 
+  config.paths.webpack.folder = './build/';
+
   return config;
 }();
